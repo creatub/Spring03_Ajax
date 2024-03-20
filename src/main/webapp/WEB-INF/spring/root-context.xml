@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<!-- [1] context, mybatis-spring 네임스페이스 추가함 -->
+	
+	<!-- [2] database.properties 파일이 있는 위치 정보 추가 -->
+	<context:property-placeholder location="classpath:/config/props/database.properties" />
+	
+	<!-- [3] DBCP 커넥션풀 빈 등록 (1. DBCP, 2.HikariCP) -->
+	<!-- 1.Apache DBCP -->
+	<bean id="dataSource-dbcp" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="${db.driverClassName}" />		
+		<property name="url" value="${db.url}" />		
+		<property name="username" value="${db.username}" />		
+		<property name="password" value="${db.password}" />		
+	</bean>
+	
+	<!-- 2.HikariCP -->
+	<bean id="dataSource-hikari" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+		<constructor-arg ref="hikariConfig" />
+	</bean>
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<property name="driverClassName" value="${db.driverClassName}" />		
+		<property name="jdbcUrl" value="${db.url}" />		
+		<property name="username" value="${db.username}" />		
+		<property name="password" value="${db.password}" />	
+	</bean>
+	<!-- [4] SqlSessionFactoryBean 등록 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource-hikari" />
+		<property name="configLocation" value="classpath:/config/mybatis/mybatis-config.xml" />
+	</bean> 
+	<!-- [5] SqlSessionTemplate 등록 -->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory"/>
+	</bean>
+	<!-- [6] mybatis-spring:scan 설정 -->
+	<mybatis-spring:scan base-package="com.multi.mapper" />
+</beans>
