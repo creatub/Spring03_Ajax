@@ -29,7 +29,7 @@
 		<!-- -1 주면 무제한 업로드 가능 -->
 	</beans:bean>
 	
-	<context:component-scan base-package="com.multi.ajaxweb" />
+	<context:component-scan base-package="com" />
 	
 	
 	

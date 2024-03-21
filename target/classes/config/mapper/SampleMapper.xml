@@ -3,7 +3,11 @@
 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.multi.mapper.SampleMapper">
-	<select id="getMemberNames" resultType="string">
-		select name from java_member		
-	</select>
+	<insert id="createNews" parameterType="com.multi.domain.NewsVO">
+		<selectKey keyProperty="no" resultType="_int" order="BEFORE">
+			select rss_news_seq.nextval from dual
+		</selectKey>
+		insert into rss_news(no,title,link,pubDate)
+		values(#{no},#{title:VARCHAR},#{link},#{pubDate})
+	</insert>
 </mapper>
