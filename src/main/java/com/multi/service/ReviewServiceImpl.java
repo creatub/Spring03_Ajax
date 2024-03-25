@@ -27,8 +27,7 @@ public class ReviewServiceImpl implements ReviewService {
 
 	@Override
 	public int getReviewCount(int pnum) {
-		// TODO Auto-generated method stub
-		return 0;
+		return rMapper.getReviewCount(pnum);
 	}
 
 	@Override

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -71,11 +72,12 @@ public class ReviewRestController {
 	
 	@PostMapping(value="/reviews", produces= {"application/json; charset=utf-8"})
 	public ModelMap reviewInsert2(ReviewVO vo, 
+			@RequestParam(value="mode", defaultValue="insert") String mode,
 			@RequestParam("mfilename") MultipartFile mfilename, HttpSession session){
 		ServletContext app = session.getServletContext();
 		//log.info("app: "+app);
 		//1. 업로드 절대경로 얻기
-		String upDir=app.getRealPath("/resources");
+		String upDir=app.getRealPath("/resources/images");
 		
 		log.info("upDir: "+upDir);
 
@@ -91,25 +93,37 @@ public class ReviewRestController {
 				log.error(e);
 			}
 		}
-		int n = rService.insertReview(vo);
+		int n = 0;
+		if(mode.equals("insert")) {
+			n=rService.insertReview(vo);
+		}else if(mode.equals("edit")) {
+			n=rService.updateReview(vo);
+		}
+		
 		ModelMap map=new ModelMap();
 		
 		String str=(n>0)?"ok":"fail";
 		map.addAttribute("result",str);
 		map.addAttribute("pnum",vo.getPnum());
 		return map;
-		
-		
 	}
 	
 	@PostMapping("/reviews_old") // 파일 업로드하지 않을 경우
 	public ModelMap reviewInsert(ReviewVO vo) {
+		log.info("vo: "+vo);
+		
+		int n = rService.insertReview(vo);
+		String str=(n>0)?"ok":"fail";
+		
 		ModelMap map=new ModelMap();
-		map.addAttribute("result","ok or fail");
+		map.addAttribute("result",str);
+		map.addAttribute("pnum",vo.getPnum());
+		
 		return map;
 	}
 	
-	@GetMapping(value="/reviews", produces= {"application/json; charset=utf-8"})
+	@GetMapping(value="/reviews", 
+			produces= {"application/json; charset=utf-8"})
 	public List<ReviewVO> getReviewAll(int pnum){
 		log.info("pnum: "+pnum);
 		return rService.getReviewList(pnum);
@@ -119,6 +133,20 @@ public class ReviewRestController {
 	public ReviewVO getReview(@PathVariable("no") int no) {
 		return rService.getReview(no);
 	}//--------------------
+	
+	@PutMapping(value="/reviews", produces="application/json; charset=utf-8")
+	public ModelMap reviewUpdate(ReviewVO vo,
+			@RequestParam("mfilename") MultipartFile mfilename) {
+		log.info("vo: "+vo);
+		log.info("mfilename: "+mfilename);
+		
+		String str="test";
+		ModelMap map=new ModelMap();
+		map.put("result", str);
+		
+		return map;
+	}
+	
 	
 	@DeleteMapping(value="/reviews/{no}", produces= {"application/json; charset:utf-8"})
 	public ModelMap reviewDelete(@PathVariable("no") int no) {

@@ -157,7 +157,7 @@
 </body>
 <script>
 $(function() {
-	getReviewAll('${param.pnum}');//리뷰 게시글 목록 가져오기
+	getReviewAll('${param.pnum}');//특정상품의 리뷰 게시글 목록 가져오기
 })//$()end--------
 
 function send(){
@@ -193,7 +193,7 @@ function send(){
 		//writeReview(paramData);//파일업로드 하지 않을 경우
 		writeReviewAndFile(formData);//파일 업로드를 할 경우 FormData를 넘기자
 	}else if(btnTxt=='글수정'){
-		
+		updateReviewAndFile(formData);
 	}				
 }//send()-------------
 
@@ -205,7 +205,7 @@ function writeReviewAndFile(formData){
 		data: formData, //==> FormData를 전달
 		dataType:'json',
 		contentType:false, // false를 주면 "multipart/form-data"로 전송된다
-		processData: false, // 일반적으로 서버에 전달하는 데이터는 query string 형태, false를 주면 query sting을
+		processData: false, // 일반적으로 서버에 전달하는 데이터는 query string 형태, false를 주면 query sting을 사용 안함
 		cache: false,
 		success:function(res){
 			if(res.result=='ok'){
@@ -220,6 +220,34 @@ function writeReviewAndFile(formData){
 		}
 	})
 }//---------
+//PUT  /reviews  ==>수정처리 (파일 업로드 안할때)
+//POST /reviews (파일업로드할때는 POST로 하자)
+function updateReviewAndFile(formData){
+	/* let file = $('#filename')[0].value;
+	formData.append("filename", file);
+	alert(file)*/
+	formData.append("mode","edit"); // mode값이 edit이면 수정 처리 ==> 컨트롤러에서, 비어있으면 등록 처리
+	$.ajax({
+		type:'post',
+		url:'reviews',
+		data:formData,
+		dataType:'json',
+		contentType:false,
+		processData:false,
+		cache:false
+	})
+	.done((res)=>{
+		//alert(JSON.stringify(res));
+		if(res.result=='ok'){
+			getReviewAll(res.pnum);
+		}else{
+			alert('수정 실패');
+		}
+	})
+	.fail((err)=>{
+		alert('err: '+err.status)
+	})
+}//---------------
 
 function writeReview(paramData){
 	$.ajax({
@@ -244,7 +272,7 @@ function writeReview(paramData){
 }//writeReview()--------------------------
 //GET /reviews => 리뷰 목록 가져오기
 function getReviewAll(pnum){
-	alert(pnum)
+	//alert(pnum)
 	$.ajax({
 		type:'get',
 		url:'reviews?pnum='+pnum,
@@ -273,27 +301,27 @@ function showList(res){//res==>배열
 		let dateStr=yy+"-"+mm+"-"+dd;
 		
 		if(obj.filename==null){
-			str+=`<li><img src="resources/backend.png" class="img img-thumbnail"></li>`;
+			str+=`<li><img src="resources/images/noimage1.PNG" class="img img-thumbnail"></li>`;
 		}else{
-			str+=`<li><img src="resources/\${obj.filename}" class="img img-thumbnail"></li>`;
+			str+=`<li><img src="resources/images/\${obj.filename}" class="img img-thumbnail"></li>`;
 			
 		}//else
 		str+=`<li><span class="text-danger">`;
 			for(var i =0;i<obj.score;i++){
 				str+=`★`;
 			}//for----
-		str+=`</span>[날짜]<br>
+		str+=`</span>[\${dateStr}]<br>
 		<span>\${obj.title}</span><br>
 		<span>\${obj.userid}</span><br>
 		<p>\${obj.content}</p>
 		`;
-
-		if(obj.userid=='kim'){
+		//글쓴이와 로그인한 사람이 일치하다면 수정,삭제 링크
+		if(obj.userid=='admin'){
             str+=`<button class="btn btn-info" onclick="edit('\${obj.no}')">수정</button>
             <button class="btn btn-danger" onclick="remove('\${obj.no}')">삭제</button>
             `;
         }
-    str+=`<li>
+    str+=`</li>
     <li></li>`;
     
     $('#reviewList').html(str);
@@ -329,6 +357,10 @@ function edit(no){
 	})
 	.done((res)=>{
 		//alert(JSON.stringify(res))
+		$('#score'+res.score).prop('checked',true);
+			//스코아 점수 체크
+		$('#writer').html(res.userid);
+			
 		$('#title').val(res.title);
 		$('#userid').val(res.userid);
 		$('#pnum').val(res.pnum);
