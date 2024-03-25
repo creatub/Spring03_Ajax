@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 
+3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.multi.mapper.ReviewMapper">
+	<insert id="insertReview" parameterType="Review">
+		<selectKey keyProperty="no" resultType="_int" order="BEFORE">
+			select review_seq.nextval from dual
+		</selectKey>
+		insert into review(no, userid, pnum, title, content, score, filename, wdate)
+		values(#{no},#{userid},#{pnum},#{title},#{content:VARCHAR},#{score},#{filename:VARCHAR},sysdate)
+	</insert>
+	
+	
+	<select id="getReviewList" resultType="Review" parameterType="_int">
+		select * from review
+		<where>pnum=#{value}</where>
+		order by no desc
+	</select>
+	
+	<select id="getReviewCount" resultType="_int" parameterType="_int">
+		select count(no) from review
+		<where>pnum=#{value}</where>
+	</select>
+	
+	<select id="getReview" resultType="Review">
+		select * from review
+		<where>no=#{value}</where>
+	</select>
+	
+	<delete id="deleteReview">
+		delete from review where no=#{value}
+	</delete>
+	
+	<update id="updateReview" parameterType="Review">
+		update review
+		<set>
+			score=#{score}, title=#{title}, content=#{content}
+			<if test="filename!=null and filename!=''">
+				, filename=#{filename}
+			</if>
+		</set>
+		<where>
+			no=#{no}
+		</where>
+	</update>
+</mapper>

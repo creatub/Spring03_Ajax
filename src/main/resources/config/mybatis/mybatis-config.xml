@@ -4,8 +4,12 @@
 "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
 	<!-- 타입 별칭 설정============================ -->
+	<typeAliases>
+		<typeAlias type="com.multi.domain.ReviewVO" alias="Review" />
+	</typeAliases>
 	<!-- 매퍼 정의================================ -->
 	<mappers>
 		<mapper resource="config/mapper/SampleMapper.xml" />
+		<mapper resource="config/mapper/ReviewMapper.xml" />
 	</mappers>
 </configuration>

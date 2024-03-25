@@ -99,5 +99,9 @@ public class AjaxController {
 	public void weather() {
 		
 	}
+	@RequestMapping("/rollingPaper")
+	public void rollingPaper() {
+		
+	}
 	
 }////////////////////////////
